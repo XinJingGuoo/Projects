@@ -1,0 +1,309 @@
+---
+title: "*Are downtown and non-downtown of Toronto different in bike theft*"
+author: "*Xinjing Guo , Chuan Liu*"
+header-includes:
+  - \usepackage{titling}
+  - \pretitle{\begin{flushleft}\LARGE}
+  - \posttitle{\end{flushleft}\LARGE}
+  - \preauthor{\begin{flushleft}}
+  - \postauthor{\end{flushleft}}
+  - \predate{\begin{flushleft}}
+  - \postdate{\end{flushleft}}
+output:
+  pdf_document: default
+  html_document: default
+date: '*November 18, 2022*'
+---
+
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(lubridate)
+library(ggmap)
+library("dplyr")
+library("forcats")
+library("ggplot2")
+library("sf")
+library(ggpubr)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+library(ggmap)
+data <- read.csv("/Users/xinjingguo/Desktop/Analyses/bicycle-thefts-2014-2019.csv", header=T)
+ggmap::register_google(key = "AIzaSyB1_FZJbfU2N0SgZRxkRs_9-nVNZ_bEqVk", write = TRUE)
+```
+
+
+```{r, , include=FALSE}
+data_1 <- 
+  data %>% 
+  mutate(Toronto = 
+           case_when( ((Long >= -79.46 & Long <= -79.3) & (Lat >= 43.39 & Lat <= 43.71))  ~ "Downtown",
+                             TRUE ~ "Non-downtown"))
+clean_data <- data_1 %>% select(Toronto, Bike_Colour, Bike_Type, Cost_of_Bike, Premise_Type)
+glimpse(clean_data)
+sum(clean_data$Toronto=="Downtown")
+sum(clean_data$Toronto=="Non-downtown")
+
+```
+
+
+The bicycle is one of the most important and practical means of transportation. It is not only convenient for people to travel but also good for their health. Especially during the COVID-19 pandemic, more people are interested in riding and one Toronto bike shop indicated a 30% increase in new customers (Bradbury, 2021). In addition, the city of Toronto established ActiveTo in 2020 to encourage more people to ride (Bradbury, 2021). However, bicycle theft cases have never decreased. In 2020, almost 4000 bike theft was recorded about 11 cases every day, and the recovery rate is only 1.33% (Landau, 2021). Therefore, by knowing what areas (premises type), what types of bicycles, and what period have a serious theft rate and thus making people more vigilant, the government can also pay more attention to it. 
+
+
+## *Bicycle theft in Toronto from 2014 to 2019*
+
+First, we need to have a comprehensive understanding of bicycle theft in Toronto. Here is the plot about bike theft locations from 2014 to 2019. 
+
+\
+```{r, fig.width=6,fig.height=4, echo =FALSE,message=FALSE, warning=FALSE}
+plot_a <- qmplot(Long, Lat, data = data_1, size = I(1)) +
+  geom_point(colour = "#268BD2", size = 1) +
+  labs(title = "Record of bicycle thefts in Toronto from 2014 to 2019",
+       caption = "Data source: Public Safety Data Portal" )
+
+plot_b <-qmplot(Long, Lat, data = data_1 %>% filter(Toronto=="Downtown"), size = I(1)) +
+  geom_point(colour = "#268BD2", size = 1) +
+  labs(title = "Record of bicycle thefts in Toronto from 2014 to 2019",
+       caption = "Data source: Public Safety Data Portal" )
+plot_c <-qmplot(Long, Lat, data = data_1 %>% filter(Toronto=="Non-downtown"), size = I(1)) +
+  geom_point(colour = "#268BD2", size = 1) +
+  labs(title = "Record of bicycle thefts in Toronto from 2014 to 2019",
+       caption = "Data source: Public Safety Data Portal" )
+ggarrange(
+  plot_a, plot_b,plot_c,ncol = 1, nrow = 3,
+  common.legend = TRUE)
+```
+
+\newpage
+
+According to this plot, Downtown bike theft is the worst compared to other areas. This is because Downtown Toronto has a high residential and employment density which is more than 55% higher density than Yonge-Eglinton (Neptis, 2021). Due to the high population density and the high number of cyclists compared to other places, then the number of bike theft cases is much higher than in others. 
+
+Based on this situation, we will group Toronto into two areas: Downtown and other areas because a huge sample size in Downtown leads to biased results. The huge sample size Downtown would control the results which other regions’ data may be ignored, especially researching in the aspects of commercial and housing types. Toronto Downtown has more commercial than others and on the housing types, in Downtown Toronto, over 90% of buildings are apartments, and the percentage of villas is very small (Neptis, 2021). For other Toronto regions, the percentage of apartments is not as high as Downtown (Neptis, 2021). In another word, if we do not group the Toronto area into two parts, due to the large data in the Toronto Downtown, the inaccurate results cause incorrect guidance and prevention to people.
+
+I use the latitude and longitude to split up the Downtown but it is not very accurate because the communities of Toronto are not divided by latitude and longitude. In the next section, we will focus on the premises types and determine whether Downtown Toronto and other areas have similar bike theft cases. 
+
+
+
+## *Bike theft cases in premises types in downtown and non-downtown of Toronto*
+
+It is important to know in Toronto's Downtown and non-urban, where bicycles are most likely to be stolen in apartments, commercial, houses, outside, or other. After the analysis, people would increase awareness of precautions and pay more attention to higher-risk areas.
+
+\
+```{r,fig.width=6,fig.height=4,echo =FALSE,message=FALSE, warning=FALSE}
+data_premise <- clean_data %>% group_by(Toronto, Premise_Type) %>% 
+  summarise(total = n())
+
+group.colors <- c(Downtown = "cornflowerblue", `Non-downtown` = "burlywood2")
+
+data_premise %>% 
+  ggplot(aes(x = Premise_Type, y = total, fill = Toronto)) +
+  geom_bar(stat = "identity", position="dodge") + 
+  geom_text(aes(label = total), vjust=-0.15, position=position_dodge(width = 0.9)) +
+  labs(title = "The number of bicycle theft in Downtown and other areas 
+       in different premises types",
+       y = " Count",
+       x = "Premise type where event occurred",
+       caption = "Data source: Public Safety Data Portal" ) +
+  scale_fill_manual(values=group.colors) +
+  theme_bw()
+```
+
+
+According to Brockbank, she points out most people may think parking bikes in the underground garage of apartments should be safer than other areas, however, bike theft cases increased by about 83% from 2014 to 2016 (2017). Based on the plot provided, illustrates in Downtown Toronto, outdoor bicycle theft cases are very high which reaches 5744. And the second highest theft area is apartments which are 3574. The data confirm apartments really have a high bike theft. This is probably because negligent management lets many thefts can be easily accessed in the underground garage. Also, it makes sense that most bike theft in outdoors because the south of Downtown Toronto is Lake Ontario and people would like to bike in there. Hence, people who live Downtown should not put their bike far away from them outside, and make sure the bike is locked in the underground garage. Security personnel should also be on the lookout for strangers entering the apartment and it is advisable to install surveillance in the bicycle parking area. 
+
+In the non-Downtown of Toronto, it is worth mentioning that outside, houses and other areas have a similar number of thefts around 1200, non-urban bicycle theft in the outdoor area is one-fifth of Downtown Toronto, and the apartment has extremely less cases compared to Downtown It may be because the apartment building is not as much as Downtown where more people live in the house, then, the case of theft is few. Therefore, even though people living outside the city center have a lower case of bicycle theft, people still need to be more vigilant in their houses, outdoors and in other places to prevent bicycle theft. And the police should keep an eye out for these places. 
+
+\
+```{r,fig.width=6,fig.height=4,echo =FALSE,message=FALSE, warning=FALSE}
+
+group.colors <- c(Downtown = "cornflowerblue", `Non-downtown` = "burlywood2")
+
+
+data_premise_1.total <- clean_data %>% group_by(Toronto, Premise_Type) %>% 
+  summarise(total = n())
+
+data_premise_1.sum <- clean_data %>% group_by(Premise_Type) %>% 
+  summarise(Sum = n()) 
+data_premise_1 <- left_join(data_premise_1.total, data_premise_1.sum, by = "Premise_Type")
+data_premise_1$Proportion <- data_premise_1$total/data_premise_1$Sum
+
+data_premise_1 %>%
+  ggplot(aes(x = Premise_Type, y = Proportion, fill = Toronto)) +
+  geom_bar(stat = "identity", position = position_fill(reverse = TRUE), # display first level on the right
+           width = 0.7) +
+  geom_text(aes(label = scales::percent_format(accuracy = 1)(Proportion)), 
+            colour = "black", position = position_fill(vjust = 0.5, reverse = TRUE)) +
+  scale_y_continuous(expand = expansion(0, 0)) + # remove excess area
+  scale_x_discrete(limits = rev(unique(data_premise_1.total$Premise_Type))) + # reverse feature axis
+  scale_fill_discrete(guide = guide_legend(title = NULL)) + # remove legend title 
+  labs(title = "The proportion of bicycle theft in downtown and other areas in 
+       different premises types",
+       y = " Proportion",
+       x = "Premises type where event occurred",
+       caption = "Data source: Public Safety Data Portal" ) +  
+  theme(legend.position = "top") + 
+  scale_fill_manual(values=group.colors) +
+  theme_bw()
+```
+
+
+Based on this plot, it shows the percentage of bicycle theft in different premises types of Downtown Toronto and non-urban. Downtown has a higher rate for each premises type each type having a ratio of more than 60% with the highest reaching 83 percent. It represents thefts downtown are much worse than in other areas. For non-urban Toronto, the house has the highest rate which is 35%. Overall, people who live downtown have a higher rate of losing bikes, and especially they have to pay more attention when they are outside. The government also should increase the number of police in Downtown Toronto. The non-urban people need to be careful in the house, outside, and in other areas. Besides the premises types, the month is the second most important because it is important for people to know which month is most vulnerable to theft.
+
+
+\newpage
+## *The number of bicycle thefts in different regions with the month*
+
+
+\
+```{r, fig.width=6,fig.height=4,echo =FALSE,message=FALSE, warning=FALSE}
+
+group.colors <- c(Downtown = "cornflowerblue", `Non-downtown` = "burlywood2")
+
+data_1 %>%
+  ggplot(aes(x=as.factor(Occurrence_Month), fill =Toronto )) + 
+    geom_bar(stat="count") +
+    geom_density(stat = "count", alpha = 0.3, aes(group = Toronto, fill = Toronto)) +
+    facet_grid(~ Toronto) +
+    labs(title = "The count of stolen bicycles in different month with different Toronto areas",
+       y = "Count",
+       x= "month",
+       caption = "Data source: Public Safety Data Portal") +
+   scale_fill_manual(values=group.colors) +
+    theme_bw() + 
+    theme(legend.position = "none") 
+```
+
+
+We wanted to find out which times of the year there were more bicycle thefts so that we could help people take better care of their bicycles during those times to avoid theft. We first examined the prices at which bicycles are sold in different months (Glenton, 2022) and we found that bicycles are best purchased between fall and Black Friday. While it is assumed that more bikes will be on the street during this period, thus increasing the number of stolen bikes, however, we find that this does not correlate with our data. Then we examined traffic flow in Toronto in different months, and we suspected that there would be a correlation between traffic flow and the number of bicycles on the street, which could be related to the number of bicycles stolen. We learned that, excluding the reduction in traffic in 2020 due to the epidemic closure, almost every year traffic slowly increases from January until it reaches a maximum in July, and then slowly decreases again. (407 ETR, 2022) Interestingly, in our study of stolen bicycles in the Toronto area, we found that the number of stolen bicycles in the downtown and other areas was similarly normally distributed, reaching a maximum in July similar to the traffic flows we studied. This was particularly true in the downtown area, where the number of stolen bicycles slowly increased from less than 500 in January to nearly 2,400 in July, and then began to decline after July. In other areas, while the number of stolen bicycles was not as high as in the downtown area, the overall trend was very similar to the downtown area. Thus, we know that summer is the most stolen season of the year, while winter is the relatively safest season for bicycles. For these high theft months, people should be more aware of bicycle security.
+
+\newpage
+
+## *Types of bicycles stolen from region to region*
+
+We mentioned before that more bikes are stolen downtown than in other areas. So, what types of bikes are more likely to be stolen? We wanted to help our readers understand which bikes are less likely to be stolen so that they could get advice on the type of bike to buy.
+
+\
+```{r,fig.width=6,fig.height=6, echo =FALSE,message=FALSE, warning=FALSE}
+data_type <- data_1 %>% group_by(Toronto, Bike_Type) %>% 
+  summarise(total = n())
+
+group.colors <- c(Downtown = "cornflowerblue", `Non-downtown` = "burlywood2")
+
+plot1<-data_type %>% filter(is.na(Bike_Type) == F) %>% 
+  ggplot(aes(x = Bike_Type, y = total, fill = Toronto)) +
+  scale_fill_manual(values=group.colors) +
+  geom_bar(stat = "identity", position = "dodge") + 
+  labs(title = "Theft of different types of bicycles in downtown and non-downtown 
+       areas of Toronto",
+       y = " Count",
+       x = "Types of stolen bicycles",
+       caption = "Data source: Public Safety Data Portal") +
+  theme_bw()
+
+
+data_area_bike.total <- clean_data %>% group_by(Toronto, Bike_Type) %>% 
+  summarise(total = n())
+data_area_bike.sum <- clean_data %>% group_by(Bike_Type) %>% 
+  summarise(Sum = n()) 
+data_area_bike <- left_join(data_area_bike.total, data_area_bike.sum, by = "Bike_Type")
+data_area_bike$Proportion <- data_area_bike.total$total/data_area_bike.sum$Sum
+
+plot2 <- data_area_bike %>%
+  ggplot(aes(x = Bike_Type, y = Proportion, fill = Toronto,)) +
+  geom_bar(stat = "identity", position = position_fill(reverse = TRUE),
+           width = 0.7) +
+  geom_text(aes(label = scales::percent_format(accuracy = 1)(Proportion)), 
+            colour = "black", position = position_fill(vjust = 0.5, reverse = TRUE)) +
+  scale_y_continuous(expand = expansion(0, 0)) + # remove excess area
+  scale_x_discrete(limits = rev(unique(data_area_bike.total$Premise_Type))) +
+  scale_fill_discrete(guide = guide_legend(title = NULL)) +
+  labs(title = "The proportion of theft in different bicycle types in Toronto 
+  downtown and non-downtown",
+       y = "Proportion",
+       x = "Types of stolen bicycles",
+       caption = "Data source: Public Safety Data Portal") + 
+  theme(legend.position = "top") + 
+  scale_fill_manual(values=group.colors) +
+  theme_bw()
+ggarrange(
+  plot1, plot2,ncol = 1, nrow = 2,
+  common.legend = TRUE, legend = "bottom"
+  )
+```
+
+
+We first learned that the most common bikes are road bikes, or regular bikes (RG) in our dataset, while the most popular bikes are mountain bikes (MT) (The Bike Adviser, 2021). We would venture a guess that these two types of bikes would be the most stolen bikes. Our analysis shows that in terms of volume, the most stolen type of bike in the city center is the RG and the second most stolen type is the MT, with these two types accounting for half of all bikes stolen. The non-urban area is similar to downtown, with MT bikes being the most stolen type and RG bikes coming in second. However, while most types of bicycles were stolen downtown, BM (BMX) and UN (unicycle) bicycles were more frequently stolen in other areas than in downtown. In short, both types of bikes, RG and MT, are more likely to be stolen both downtown and in other parts of the city, but we cannot know if this is because other types of bikes are more secure or because there are more of these two types of bikes than other types of bikes.
+
+\
+```{r,fig.width=7,fig.height=4, echo=FALSE, message=FALSE, warning=FALSE}
+data_types_Downtown <- data_1 %>% filter(Toronto == "Downtown")
+data_types_other <- data_1 %>% filter(Toronto == "Non-downtown")
+types_Downtown <- data_1 %>% filter(Toronto == "Downtown") %>% 
+  group_by(Bike_Type) %>% count()
+
+plot3 <- ggplot(types_Downtown, aes(x="", y=n, fill=Bike_Type)) + 
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  scale_fill_manual(values=c("yellow", "firebrick2", "midnightblue","azure1", "darkgrey","pink", "khaki3","green4",
+                             "orange","cyan","antiquewhite","darkorchid", "brown4"),name="Bike Type") +
+  labs(title = "The count of stolen bicycles in 
+  Downtown Toronto with 
+  differnt bicycle types",
+       y = "count",
+       x = "",
+       caption = "Data source: Public Safety Data Portal") 
+
+types_other <- data_1 %>% filter(Toronto == "Non-downtown") %>% 
+  group_by(Bike_Type) %>% count()
+
+plot4 <- ggplot(types_other, aes(x="", y=n, fill=Bike_Type)) + 
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  scale_fill_manual(values=c("yellow", "firebrick2", "midnightblue","azure1", "darkgrey","pink", "khaki3","green4",
+                             "orange","cyan","antiquewhite","darkorchid", "brown4"), name="Bike Type") +
+  labs(title = "The count of stolen bicycles 
+  in non-Downtown Toronto
+  with differnt bicycle types",
+       y = "count",
+       x= "",
+       caption = "Data source: Public Safety Data Portal") 
+
+
+ggarrange(
+  plot3, plot4,ncol = 2, nrow = 1,
+  common.legend = TRUE, legend = "bottom"
+  )
+
+
+```
+
+
+
+According to the two pie charts, both downtown and non-urban of Toronto have a large of MT bikes that were stolen. Also, they have the similar proportion on RG, OT and RC bikes which their percentages in both charts are not small. However, it does not mean MT, RG, OT and RC bikes have the high probability on theft. Because based on the Bike adviser (2021), it clearly illustrates these types of bike are population. Therefore, whether in downtown or non-urban of Toronto, and no matter what kind of bike you have, need to be vigilant. 
+
+
+In conclusion, from our research, we know that regionally, bicycle theft is much more common in Downtown Toronto than in other areas of Toronto, and residents living in Downtown Toronto may need to consider bicycle security risks even more. Bicycle theft in the downtown area is very common in outdoor and garage areas, so if you are a bicycle owner in the downtown area you should avoid these parking areas or take extra precautions. Bicyclists should pay more attention to the security of their parking locations and take greater precautions to protect their bicycles or reduce bicycle travel during the summer months, when bicycle theft is most prevalent. For the types of bicycles, our study does not show which bicycles have a lower theft rate, because the types of bicycles that are stolen in high numbers are precisely the most common types currently on the market, and we do not know whether this is because such bicycles are less secure or because these types of bicycles in Toronto originally accounted for a large portion of all bicycles. Also, there is some limitation in our study, as we only analyzed bike theft in downtown and non-downtown areas, but there are still other neighborhoods such as North York and Scarborough, etc. We will provide more detailed information on bike theft in these areas in future studies. In conclusion, we hope that our research will provide advice on bicycle safety risks for Toronto area bicycle owners and those looking to purchase bicycles. Also, the police can increase alert and staffing during the summer and in multi-incident areas. 
+
+\newpage
+## *Bibliography*
+
+407 ETR. (2022). Usage statistics. Usage Statistics | 407 ETR. Retrieved November 17, 2022, from https://www.407etr.com/en/highway/corporate/usage-statistics.html 
+
+Bradbury, C. (2021, March 16). Covid-19 forced Toronto to prioritize cyclists. will its momentum last? The Pigeon. Retrieved November 17, 2022, from https://the-pigeon.ca/2021/03/16/toronto-covid-bike-lanes/
+
+Brockbank, N. (2017, November 28). Explore the worst Toronto neighbourhoods for bike theft on our map | CBC news. CBCnews. Retrieved November 17, 2022, from https://www.cbc.ca/news/canada/toronto/worst-toronto-neighbourhoods-bike-theft-1.4421633
+
+Density. Neptis Foundation. (2021, November 2). Retrieved November 17, 2022, from https://neptis.org/publications/chapters/density
+
+Glenton, K. (2022, November 9). What is the best time of year to buy a bicycle? Discerning Cyclist. Retrieved November 18, 2022, from https://discerningcyclist.com/what-is-the-best-time-of-year-to-buy-a-bicycle/ 
+
+Landau, J. (2021, August 24). Bike stolen from prominent Toronto politician and the reactions are polarizing. blogTO. Retrieved November 17, 2022, from https://www.blogto.com/city/2021/08/bike-stolen-prominent-toronto-politician-and-reactions-are-polarizing/
+
+The Bike Adviser. (2021, October 7). 15 types of bikes: Which Bike Suits You Best? The Bike Adviser. Retrieved November 17, 2022, from https://thebikeadviser.com/types-of-bicycles/ 
+
+
