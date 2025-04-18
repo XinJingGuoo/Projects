@@ -1,0 +1,379 @@
+---
+title: "457 FInal Project"
+output: html_document
+---
+
+```{r}
+library(astsa)
+flu
+plot.ts(flu, main="Recruitment (number of new fish index)")
+acf2(flu, 48)
+```
+
+
+```{r}
+library(astsa)
+unemp
+plot.ts(unemp, main="U.S. Unemployment")
+acf2(unemp, 48)
+
+x = unemp 
+dx = diff(x)
+ddx = diff(dx,12)
+
+#plot
+monthplot(dx)
+monthplot(ddx)
+acf2(ddx, 50)
+
+
+#Choose one 
+sarima(ddx, 2,1,2, 1, 1, 1, 12)
+sarima(ddx, 2,1,4, 0, 1, 1, 12)
+
+
+#predict 10-predict step
+pred1 = sarima.for(ddx, 10, 2,1,2, 1, 1, 1, 12)
+
+
+#CI for predict
+upper = pred1$pred +qnorm(0.975) *pred1$se
+lower = pred1$pred -qnorm(0.975) *pred1$se
+(data.frame("Prediction" = pred1$pred, "PI 95% Lower Bound" = lower, "PI 95% Upper Bound" = upper))
+
+##data analysis 
+data.pre = mvspec(x, log="no")
+P1 = data.pre$details[order(data.pre$details[,3],decreasing = TRUE),]
+##three dominant  frequencies
+P1[1,1]
+P1[2,1]
+P1[3,1]
+##when the cycle occur
+cat("cycles are occuring at", 1/P1[1,1],1/P1[2,1],1/P1[3,1])
+
+
+###CI for circle occur
+library(MASS)
+data.u1 = 2*P1[1,3]/qchisq(.10,2)
+data.l1 = 2*P1[1,3]/qchisq(.90,2)
+data.u2 = 2*P1[2,3]/qchisq(.10,2)
+data.l2 = 2*P1[2,3]/qchisq(.90,2)
+data.u3 = 2*P1[3,3]/qchisq(.10,2)
+data.l3 = 2*P1[3,3]/qchisq(.90,2)
+
+##result table
+Result = data.frame(Series = c(rep("data__" , 3)), 
+                    Dominant.Freq = c(P1[1,1],P1[2,1],P1[3,1]),
+                    Spec = c(P1[1,3],P1[2,3],P1[3,3]),
+                    Lower = c(data.l1,data.l2,data.l3),
+                    Upper = c(data.u1,data.u2,data.u3))
+Result
+```
+
+
+```{r}
+library(astsa)
+qinfl
+plot.ts(qinfl, main="Quarterly Interest Rate")
+acf2(qinfl, 48)
+
+x = qinfl 
+dx = diff(x)
+ddx = diff(dx,4)
+
+#plot
+monthplot(dx)
+monthplot(ddx)
+acf2(ddx, 50)
+
+sarima(ddx, 0,1,0, 0, 1, 1, 4)
+sarima(ddx, 0,1,1, 0, 1, 1, 4)
+sarima(ddx, 0,1,2, 0, 1, 1, 4)
+sarima(ddx, 0,1,3, 0, 1, 1, 4)
+sarima(ddx, 0,1,4, 0, 1, 1, 4)
+
+sarima(ddx, 1,1,0, 0, 1, 1, 4)
+sarima(ddx, 2,1,0, 0, 1, 1, 4)
+sarima(ddx, 3,1,0, 0, 1, 1, 4)
+sarima(ddx, 4,1,0, 0, 1, 1, 4)
+
+sarima(ddx, 1,1,1, 0, 1, 1, 4)
+sarima(ddx, 1,1,2, 0, 1, 1, 4)
+sarima(ddx, 1,1,3, 0, 1, 1, 4)
+sarima(ddx, 1,1,4, 0, 1, 1, 4)
+sarima(ddx, 2,1,1, 0, 1, 1, 4)
+sarima(ddx, 2,1,2, 0, 1, 1, 4)
+sarima(ddx, 2,1,3, 0, 1, 1, 4)
+sarima(ddx, 2,1,4, 0, 1, 1, 4)
+sarima(ddx, 3,1,1, 0, 1, 1, 4)
+sarima(ddx, 3,1,2, 0, 1, 1, 4)
+sarima(ddx, 3,1,3, 0, 1, 1, 4)
+sarima(ddx, 3,1,4, 0, 1, 1, 4)
+
+sarima(ddx, 4,1,1, 0, 1, 1, 4)
+sarima(ddx, 4,1,2, 0, 1, 1, 4)
+sarima(ddx, 4,1,3, 0, 1, 1, 4)
+sarima(ddx, 4,1,4, 0, 1, 1, 4)
+
+
+
+
+
+sarima(ddx, 0,1,0, 1, 1, 1, 4)
+sarima(ddx, 0,1,1, 1, 1, 1, 4)
+sarima(ddx, 0,1,2, 1, 1, 1, 4)
+sarima(ddx, 0,1,3, 1, 1, 1, 4)
+sarima(ddx, 0,1,4, 1, 1, 1, 4)
+
+sarima(ddx, 1,1,0, 1, 1, 1, 4)
+sarima(ddx, 2,1,0, 1, 1, 1, 4)
+sarima(ddx, 3,1,0, 1, 1, 1, 4)
+sarima(ddx, 4,1,0, 1, 1, 1, 4)
+
+sarima(ddx, 1,1,1, 1, 1, 1, 4)
+sarima(ddx, 1,1,2, 1, 1, 1, 4)
+sarima(ddx, 1,1,3, 1, 1, 1, 4)
+sarima(ddx, 1,1,4, 1, 1, 1, 4)
+sarima(ddx, 2,1,1, 1, 1, 1, 4)
+sarima(ddx, 2,1,2, 1, 1, 1, 4)
+sarima(ddx, 2,1,3, 1, 1, 1, 4)
+sarima(ddx, 2,1,4, 1, 1, 1, 4)
+sarima(ddx, 3,1,1, 1, 1, 1, 4)
+sarima(ddx, 3,1,2, 1, 1, 1, 4)
+sarima(ddx, 3,1,3, 1, 1, 1, 4)
+sarima(ddx, 3,1,4, 1, 1, 1, 4)
+
+sarima(ddx, 4,1,1, 1, 1, 1, 4)
+sarima(ddx, 4,1,2, 1, 1, 1, 4)
+sarima(ddx, 4,1,3, 1, 1, 1, 4)
+sarima(ddx, 4,1,4, 1, 1, 1, 4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sarima(ddx, 3,1,5, 0, 1, 1, 12)
+sarima(ddx, 4,1,4, 0, 1, 1, 12)
+sarima(ddx, 3,1,4, 0, 1, 1, 12)
+sarima(ddx, 4,1,3, 0, 1, 1, 12)
+
+sarima(ddx, 0,1,0, 0, 1, 1, 12)
+sarima(ddx, 1,1,0, 0, 1, 1, 12)
+sarima(ddx, 2,1,0, 0, 1, 1, 12)
+sarima(ddx, 3,1,0, 0, 1, 1, 12)
+sarima(ddx, 4,1,0, 0, 1, 1, 12)
+sarima(ddx, 5,1,0, 0, 1, 1, 12)
+sarima(ddx, 6,1,0, 0, 1, 1, 12)
+sarima(ddx, 7,1,0, 0, 1, 1, 12)
+
+sarima(ddx, 0,1,1, 0, 1, 1, 12)
+sarima(ddx, 1,1,1, 0, 1, 1, 12)
+sarima(ddx, 2,1,1, 0, 1, 1, 12)
+sarima(ddx, 3,1,1, 0, 1, 1, 12)
+sarima(ddx, 4,1,1, 0, 1, 1, 12)
+sarima(ddx, 5,1,1, 0, 1, 1, 12)
+sarima(ddx, 6,1,1, 0, 1, 1, 12)
+sarima(ddx, 7,1,1, 0, 1, 1, 12)
+
+sarima(ddx, 0,1,2, 0, 1, 1, 12)
+sarima(ddx, 1,1,2, 0, 1, 1, 12)
+sarima(ddx, 2,1,2, 0, 1, 1, 12)
+sarima(ddx, 3,1,2, 0, 1, 1, 12)
+sarima(ddx, 4,1,2, 0, 1, 1, 12)
+sarima(ddx, 5,1,2, 0, 1, 1, 12)
+sarima(ddx, 6,1,2, 0, 1, 1, 12)
+sarima(ddx, 7,1,2, 0, 1, 1, 12)
+
+sarima(ddx, 0,1,3, 0, 1, 1, 12)
+sarima(ddx, 1,1,3, 0, 1, 1, 12)
+sarima(ddx, 2,1,3, 0, 1, 1, 12)
+sarima(ddx, 3,1,3, 0, 1, 1, 12)
+sarima(ddx, 4,1,3, 0, 1, 1, 12)
+sarima(ddx, 5,1,3, 0, 1, 1, 12)
+sarima(ddx, 6,1,3, 0, 1, 1, 12)
+sarima(ddx, 7,1,3, 0, 1, 1, 12)
+
+
+sarima(ddx, 0,1,4, 0, 1, 1, 12)
+sarima(ddx, 1,1,4, 0, 1, 1, 12)
+sarima(ddx, 2,1,4, 0, 1, 1, 12)
+sarima(ddx, 3,1,4, 0, 1, 1, 12)
+sarima(ddx, 4,1,4, 0, 1, 1, 12)
+sarima(ddx, 5,1,4, 0, 1, 1, 12)
+sarima(ddx, 6,1,4, 0, 1, 1, 12)
+sarima(ddx, 7,1,4, 0, 1, 1, 12)
+
+sarima(ddx, 0,1,5, 1, 1, 1, 12)
+sarima(ddx, 1,1,5, 1, 1, 1, 12)
+sarima(ddx, 1,1,5, 1, 1, 1, 12)
+sarima(ddx, 3,1,5, 1, 1, 1, 12)
+sarima(ddx, 4,1,5, 1, 1, 1, 12)
+sarima(ddx, 5,1,5, 1, 1, 1, 12)
+sarima(ddx, 6,1,5, 1, 1, 1, 12)
+sarima(ddx, 7,1,5, 1, 1, 1, 12)
+
+```
+
+
+
+
+```{r}
+#predict 10-predict step
+pred1 = sarima.for(ddx, 10, 2,1,2, 1, 1, 1, 12)
+
+
+#CI for predict
+upper = pred1$pred +qnorm(0.975) *pred1$se
+lower = pred1$pred -qnorm(0.975) *pred1$se
+(data.frame("Prediction" = pred1$pred, "PI 95% Lower Bound" = lower, "PI 95% Upper Bound" = upper))
+
+##data analysis 
+data.pre = mvspec(x, log="no")
+P1 = data.pre$details[order(data.pre$details[,3],decreasing = TRUE),]
+##three dominant  frequencies
+P1[1,1]
+P1[2,1]
+P1[3,1]
+##when the cycle occur
+cat("cycles are occuring at", 1/P1[1,1],1/P1[2,1],1/P1[3,1])
+
+
+###CI for circle occur
+library(MASS)
+data.u1 = 2*P1[1,3]/qchisq(.10,2)
+data.l1 = 2*P1[1,3]/qchisq(.90,2)
+data.u2 = 2*P1[2,3]/qchisq(.10,2)
+data.l2 = 2*P1[2,3]/qchisq(.90,2)
+data.u3 = 2*P1[3,3]/qchisq(.10,2)
+data.l3 = 2*P1[3,3]/qchisq(.90,2)
+
+##result table
+Result = data.frame(Series = c(rep("data__" , 3)), 
+                    Dominant.Freq = c(P1[1,1],P1[2,1],P1[3,1]),
+                    Spec = c(P1[1,3],P1[2,3],P1[3,3]),
+                    Lower = c(data.l1,data.l2,data.l3),
+                    Upper = c(data.u1,data.u2,data.u3))
+Result
+```
+
+
+
+------
+```{r}
+library(astsa)
+qintr
+plot.ts(qintr, main="Quarterly Interest Rate")
+acf2(qintr, 48)
+```
+
+```{r}
+library(astsa)
+qinfl
+plot.ts(qinfl, main="Quarterly Inflation")
+acf2(qinfl, 48)
+```
+
+```{r}
+library(astsa)
+prodn
+plot.ts(prodn, main="Quarterly Inflation")
+acf2(prodn, 48)
+```
+
+
+
+
+```{r}
+library(astsa)
+gas
+plot.ts(gas, main="Hawaiian occupancy rates")
+acf2(gas, 48)
+```
+
+
+```{r}
+library(astsa)
+chicken
+plot.ts(chicken, main="Monthly price of a pound of chicken")
+acf2(chicken, 48)
+```
+
+
+
+```{r}
+##All code 
+#Take diff
+x = chicken 
+dx = diff(x)
+ddx = diff(dx,12)
+
+#plot
+monthplot(dx)
+monthplot(ddx)
+acf2(ddx, 50)
+
+
+#Choose one 
+sarima(ddx, 1,1,3, 1, 1, 1, 12)
+sarima(ddx, 1,1,3, 0, 1, 0, 12)
+
+
+#predict 10-predict step
+pred1 = sarima.for(ddx,10, 1,1,3, 0, 1, 0, 12)
+
+
+#CI for predict
+upper = pred1$pred +qnorm(0.975) *pred1$se
+lower = pred1$pred -qnorm(0.975) *pred1$se
+(data.frame("Prediction" = pred1$pred, "PI 95% Lower Bound" = lower, "PI 95% Upper Bound" = upper))
+
+##data analysis 
+data.pre = mvspec(x, log="no")
+P1 = data.pre$details[order(data.pre$details[,3],decreasing = TRUE),]
+##three dominant  frequencies
+P1[1,1]
+P1[2,1]
+P1[3,1]
+##when the cycle occur
+cat("cycles are occuring at", 1/P1[1,1],1/P1[2,1],1/P1[3,1])
+
+
+###CI for circle occur
+library(MASS)
+data.u1 = 2*P1[1,3]/qchisq(.10,2)
+data.l1 = 2*P1[1,3]/qchisq(.90,2)
+data.u2 = 2*P1[2,3]/qchisq(.10,2)
+data.l2 = 2*P1[2,3]/qchisq(.90,2)
+data.u3 = 2*P1[3,3]/qchisq(.10,2)
+data.l3 = 2*P1[3,3]/qchisq(.90,2)
+
+##result table
+Result = data.frame(Series = c(rep("data__" , 3)), 
+                    Dominant.Freq = c(P1[1,1],P1[2,1],P1[3,1]),
+                    Spec = c(P1[1,3],P1[2,3],P1[3,3]),
+                    Lower = c(data.l1,data.l2,data.l3),
+                    Upper = c(data.u1,data.u2,data.u3))
+Result
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
