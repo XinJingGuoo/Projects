@@ -42,7 +42,7 @@ As the team leader, I oversaw a four-member consulting team, serving as the prim
 ## Institution & Sponsor
 **Institution:** NYU Tandon School of Engineering  
 **Sponsor:** LG Electronics North America  
-**Duration:** January 2025 – April 2025
+**Duration:** September 2024 – December 2024
 
 ---
 
