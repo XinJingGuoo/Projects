@@ -32,19 +32,19 @@ As the team leader, I oversaw a four-member consulting team, serving as the prim
 - 📄 [Statement of Work](SOW%20-%20LG.pdf)
 - 📊 [Final Presentation Slide Deck](LG%20Capstone%20Project.pptx)
 
-## 🧩 Skills Demonstrated
+## Skills Demonstrated
 - Strategic consulting in manufacturing
 - Cross-functional team leadership
 - Technical fluency with smart manufacturing systems
 - Effective client communication and presentation
 - Data-driven decision-making
 
-## 🏛 Institution & Sponsor
+## Institution & Sponsor
 **Institution:** NYU Tandon School of Engineering  
 **Sponsor:** LG Electronics North America  
 **Duration:** January 2025 – April 2025
 
 ---
 
-📬 For more information or collaboration, feel free to reach out via [LinkedIn](https://www.linkedin.com/in/your-profile) or email at your.email@example.com.
+📬 For more information or collaboration, feel free to reach out via [LinkedIn](https://www.linkedin.com/in/xinjing-guo/) or email at xg2404@nyu.edu.
 """
