@@ -47,4 +47,4 @@ As the team leader, I oversaw a four-member consulting team, serving as the prim
 ---
 
 📬 For more information or collaboration, feel free to reach out via [LinkedIn](https://www.linkedin.com/in/xinjing-guo/) or email at xg2404@nyu.edu.
-"""
+
